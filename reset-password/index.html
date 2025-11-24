@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Reset Password</title>
+    <style>
+      :root {
+        --bg: #f7f7fb;
+        --card: #fff;
+        --accent: #5b6cff;
+        --danger: #e74c3c;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        font-family: Inter, system-ui, Segoe UI, Roboto, Arial;
+        margin: 0;
+        background: var(--bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100vh;
+      }
+      .card {
+        background: var(--card);
+        padding: 24px;
+        border-radius: 12px;
+        box-shadow: 0 6px 20px rgba(20, 20, 50, 0.06);
+        width: 380px;
+      }
+      h1 {
+        margin: 0 0 12px;
+        font-size: 20px;
+      }
+      p.lead {
+        margin: 0 0 18px;
+        color: #555;
+        font-size: 14px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 6px;
+        color: #333;
+      }
+      input[type="password"] {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #e6e9f0;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .row {
+        display: flex;
+        gap: 8px;
+      }
+      button {
+        width: 100%;
+        padding: 10px;
+        border-radius: 8px;
+        border: 0;
+        background: var(--accent);
+        color: #fff;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button[disabled] {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+      .muted {
+        font-size: 13px;
+        color: #777;
+        margin-top: 10px;
+      }
+      .msg {
+        padding: 10px;
+        border-radius: 8px;
+        margin-bottom: 12px;
+        font-size: 14px;
+      }
+      .success {
+        background: #e6f7ef;
+        color: #166534;
+      }
+      .error {
+        background: #ffefef;
+        color: var(--danger);
+      }
+      .small {
+        font-size: 12px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Reset your password</h1>
+      <p class="lead">Enter a new password for your account.</p>
+
+      <div id="message"></div>
+
+      <label for="password">New password</label>
+      <input
+        id="password"
+        type="password"
+        placeholder="Minimum 8 characters"
+        autocomplete="new-password"
+      />
+
+      <label for="confirm">Confirm password</label>
+      <input
+        id="confirm"
+        type="password"
+        placeholder="Re-type new password"
+        autocomplete="new-password"
+      />
+
+      <div class="small muted">Password must be at least 8 characters.</div>
+      <div style="height: 12px"></div>
+      <button id="submit">Reset Password</button>
+
+      <p class="muted" style="margin-top: 14px">
+        If the link is expired or invalid, request a new reset link from the
+        app.
+      </p>
+    </div>
+
+    <script>
+      // Helper: get token either from ?token=... or last path segment
+      function getTokenFromUrl() {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("token")) return params.get("token");
+        const pathParts = window.location.pathname.split("/").filter(Boolean);
+        return pathParts[pathParts.length - 1] || null;
+      }
+
+      const token = getTokenFromUrl();
+      const messageEl = document.getElementById("message");
+      const pwd = document.getElementById("password");
+      const conf = document.getElementById("confirm");
+      const btn = document.getElementById("submit");
+
+      function showMessage(text, type) {
+        messageEl.innerHTML = `<div class="msg ${
+          type === "ok" ? "success" : "error"
+        }">${text}</div>`;
+      }
+
+      if (!token) {
+        showMessage(
+          "Reset token not found in URL. Open the link you received in email.",
+          "err"
+        );
+        btn.disabled = true;
+      }
+
+      btn.addEventListener("click", async () => {
+        messageEl.innerHTML = "";
+        const password = pwd.value.trim();
+        const confirm = conf.value.trim();
+
+        if (password.length < 8) {
+          showMessage("Password must be at least 8 characters.", "err");
+          return;
+        }
+        if (password !== confirm) {
+          showMessage("Passwords do not match.", "err");
+          return;
+        }
+
+        btn.disabled = true;
+        btn.textContent = "Resetting...";
+
+        try {
+          // TODO: change the URL to match your backend endpoint
+          // Option A: token in path
+          const url = `https://kyzo.onrender.com/api/auth/reset-password/${encodeURIComponent(
+            token
+          )}`;
+
+          const res = await fetch(url, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ newPassword: password }),
+          });
+
+          const data = await res.json();
+          if (res.ok) {
+            showMessage(
+              data.message || "Password reset successful. You can now log in.",
+              "ok"
+            );
+            pwd.value = "";
+            conf.value = "";
+            // optionally redirect to login after 2s
+            // setTimeout(()=> window.location.href = '/', 2000);
+            setTimeout(() => { window.close();}, 3000);
+          } else {
+            showMessage(
+              data.message || "Reset failed. Try again or request a new link.",
+              "err"
+            );
+          }
+        } catch (err) {
+          showMessage("Network error. Please try again.", "err");
+        } finally {
+          btn.disabled = false;
+          btn.textContent = "Reset Password";
+        }
+      });
+    </script>
+  </body>
+</html>

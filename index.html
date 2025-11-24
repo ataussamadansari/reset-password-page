@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome</title>
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100vh;
+        font-family: "Inter", Arial, sans-serif;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #667eea, #764ba2);
+      }
+
+      .card {
+        background: #ffffff;
+        padding: 40px;
+        border-radius: 18px;
+        width: 360px;
+        text-align: center;
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+        animation: fadeIn 0.7s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      h1 {
+        margin: 0;
+        font-size: 28px;
+        color: #333;
+      }
+
+      p {
+        margin: 12px 0 20px;
+        color: #555;
+        font-size: 15px;
+      }
+
+      .btn {
+        display: inline-block;
+        margin-top: 10px;
+        padding: 12px 20px;
+        font-size: 15px;
+        background: #667eea;
+        color: #fff;
+        text-decoration: none;
+        border-radius: 10px;
+        transition: 0.25s ease;
+      }
+
+      .btn:hover {
+        background: #5565d9;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1>Welcome!</h1>
+      <p>Password reset successfully</p>
+      <!-- <a href="index.html" class="btn">Go to Home</a> -->
+    </div>
+  </body>
+</html>
